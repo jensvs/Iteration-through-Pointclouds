@@ -1,0 +1,66 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <math.h>
+using namespace std;
+
+auto createList(string path)
+{
+    //PointCloud File
+    ifstream file (path, ios::binary);
+
+    //Return value
+    vector<vector<double>> file_lines;
+
+    //Variables for splitting lines in file
+    string line;
+    double value;
+    string delimiter = "\t";
+    size_t pos = 0;
+    int rowCount = 0;
+
+    //Splitting lines in single values and storing them.
+    while(std::getline(file, line))
+    {
+        vector<double> values;
+        while ((pos = line.find(delimiter)) != string::npos)
+        {
+            value = std::stod(line.substr(0, pos));
+            values.push_back(value);
+            line.erase(0, pos + delimiter.length());
+        }
+        file_lines.push_back(values);
+        rowCount++;
+    }
+    return file_lines;
+}
+
+int main()
+{
+    //Search Radius
+    int radius = 1;
+
+    //Convert files to single values
+    vector<vector<double>> file1 = createList("PointCloud1.pts");
+    vector<vector<double>> file2 = createList("PointCloud2.pts");
+
+    vector<vector<double>> array[] = {file1, file2};
+
+    for (auto file : array){
+
+        for (auto values : file){
+            for (auto searchFile : array){
+                if(file == searchFile){
+                    continue;
+                }
+
+                for (auto searchValues : searchFile){
+                    if(pow(values[0] - searchValues[0], 2) + pow(values[1] - searchValues[1], 2) < pow(radius, 2)){
+                        //Delete value from file
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
